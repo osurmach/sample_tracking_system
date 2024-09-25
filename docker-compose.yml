@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  tracking_system:
+
+    build: .
+
+    ports:
+      - 80:80
+    expose:
+      - 80
+
+    command:
+      - /bin/sh
+      - -c
+      - | 
+        alembic upgrade head
+        fastapi run main.py --port 80
+
+    restart: on-failure
+
+
