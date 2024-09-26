@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from tracking_system.db import samples_manager as SamplesManager
 from tracking_system.enums import SampleStatus
-from tracking_system.schemas import SampleToMake, SampleToShip, SampleProcessed, SampleShipped
+from tracking_system.schemas import SampleToMake, SampleToShip, SampleProcessed, SamplesShipped
 from tracking_system.utils import get_db
 
 router = APIRouter(prefix='/sample', tags=['sample'])
@@ -12,7 +12,6 @@ router = APIRouter(prefix='/sample', tags=['sample'])
 
 @router.get('')
 def get_samples(status: str, db: Session = Depends(get_db)):
-    print(f'status : {status}')
     if status.lower() == SampleStatus.ORDERED.value.lower():
         db_samples = SamplesManager.get_samples(db, SampleStatus.ORDERED)
         samples_to_make = [SampleToMake(sample_uuid=db_sample.sample_uuid, sequence=db_sample.sequence) for db_sample in
@@ -34,7 +33,7 @@ def update_processed_orders(samples_made: Annotated[list[SampleProcessed], Body(
 
 
 @router.put('/update/shipped')
-def update_shipped_orders(samples_shipped: Annotated[list[SampleShipped], Body(embed=True)], db: Session = Depends(get_db)):
-    for sample in samples_shipped:
-        SamplesManager.update_processed_sample(db, sample)
+def update_shipped_orders(samples: SamplesShipped, db: Session = Depends(get_db)):
+    for sample in samples.samples_shipped:
+        SamplesManager.update_shipped_sample(db, sample)
     return {'message: Success'}

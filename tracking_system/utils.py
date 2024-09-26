@@ -18,7 +18,7 @@ def validate_samples(db: Session, samples: list[Sample]) -> list[int]:
     sample_uuids = (sample.sample_uuid for sample in samples)
     return SamplesManager.get_samples_uuids(db, sample_uuids)
 
-def get_sample_status(sample: SampleProcessed) -> SampleStatus:
+def update_sample_status(sample: SampleProcessed) -> SampleStatus:
     status = SampleStatus.PROCESSED \
         if sample.qc_1 >= 10.0 and sample.qc_2 >= 5.0 and sample.qc_3.value.lower() == QCStatus.PASS.value.lower() \
         else SampleStatus.FAILED

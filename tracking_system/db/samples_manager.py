@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 
 from tracking_system.enums import SampleStatus
 from tracking_system.models import Sample
-from tracking_system.schemas import SampleCreate, SampleProcessed, SampleShipped
-from tracking_system.utils import get_sample_status
+from tracking_system.schemas import SampleCreate, SampleProcessed
+from tracking_system.utils import update_sample_status
 
 
 def get_samples_uuids(db: Session, sample_uuids: list[int]) -> list[str]:
@@ -21,7 +21,7 @@ def create_sample(db: Session, sample: SampleCreate, order_id: int):
 
 
 def update_processed_sample(db: Session, sample: SampleProcessed):
-    sample_status = get_sample_status(sample)
+    sample_status = update_sample_status(sample)
     db.query(Sample).filter(Sample.sample_uuid == sample.sample_uuid).update({
         'plate_id': sample.plate_id,
         'well': sample.well,
@@ -33,8 +33,8 @@ def update_processed_sample(db: Session, sample: SampleProcessed):
     db.commit()
 
 
-def update_shipped_sample(db: Session, sample: SampleShipped):
-    db.query(Sample).filter(Sample.sample_uuid == sample.sample_uuid).update({
+def update_shipped_sample(db: Session, sample_uuid: str):
+    db.query(Sample).filter(Sample.sample_uuid == sample_uuid).update({
         'status': SampleStatus.SHIPPED
     })
     db.commit()
